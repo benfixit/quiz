@@ -3,7 +3,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useCategory } from "@/store/CategoryProvider";
 import { router } from "expo-router";
 
-export default function WelcomeScreen(){
+export default function ReviewScreen(){
     const { category } = useCategory();
 
     return (
@@ -17,7 +17,7 @@ export default function WelcomeScreen(){
                         {category.icon}
                     </Text>
                 </View>
-                <Pressable style={styles.pressable} onPress={() => router.push({ pathname: "/question", params: { questionNumber: 1 }})}>
+                <Pressable style={styles.pressable} onPress={() => router.push("/question")}>
                     <View>
                         <Text style={styles.pressableText}>
                             Get Started
@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
         padding: 16
     },
     pressableText: {
-        color: "#ffffff",
-        fontSize: 16
+        color: "#ffffff"
     },
 });

@@ -3,11 +3,15 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { categories } from "@/constants/categories";
 import { CategoryType } from "@/typings";
 import { router } from "expo-router";
+import { useCategory } from "@/store/CategoryProvider";
 
 export default function HomeScreen(){
+    const { setCategory } = useCategory();
+
     const renderItem = (category: CategoryType ) => {
         return (
             <Pressable style={styles.catPressable} onPress={() => {
+                setCategory(category);
                 router.push("/welcome");
             }}>
                 <View>

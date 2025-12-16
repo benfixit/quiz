@@ -64,9 +64,8 @@ const styles = StyleSheet.create({
     minWidth: 150,
   },
   text: {
-    color: 'white',
+    color: '#0f0f0f',
     fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 

@@ -12,3 +12,9 @@ export type QuestionType = {
     options: string[],
     answer: string
 }
+
+export type AnswersType = {
+    question: string,
+    answer: string,
+    status: boolean
+}
