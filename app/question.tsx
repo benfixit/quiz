@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -5,21 +6,18 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { router, UnknownOutputParams, useLocalSearchParams } from "expo-router";
 import { useQuestions } from "@/store/QuestionsProvider";
 import { useResult } from "@/store/ResultProvider";
-import { QuestionType } from "@/typings";
-
-type AnswersType = {
-    question: string,
-    answer: string,
-    status: boolean
-}
+import { QuestionType, AnswersType } from "@/typings";
+import CountdownTimer from "@/components/CountdownTimer";
 
 export default function QuestionScreen(){
     const { questions } = useQuestions();
     const param = useLocalSearchParams<UnknownOutputParams & { questionNumber: number }>();
     const questionNumber = Number(param.questionNumber);
-    const [question, setQuestion] = useState<QuestionType>(questions[0]);
-    const [selectedOption, setSelectedOption] = useState<string>("");
     const { result, setResult } = useResult();
+    const [question, setQuestion] = useState<QuestionType>(questions[0]);
+    const [selectedOption, setSelectedOption] = useState<string>(null);
+    const [disableOptions, setDisableOptions] = useState<boolean>(false);
+    const [hasSelected, setHasSelected] = useState<boolean>(false);
     
 
     useEffect(() => {
@@ -32,11 +30,9 @@ export default function QuestionScreen(){
 
     const handlePressOption = (option: string) => {
         // Change the button color, simulate a transition and show the new question
-        // disable the other buttons while changing the color of the clicked button
         // play sound
         setSelectedOption(option);
-
-        // if we get to the end, navigate to the result screen with the result and selected result
+        setHasSelected(true);
     }
 
     const handlePressNext = () => {
@@ -44,7 +40,8 @@ export default function QuestionScreen(){
         
         const data: AnswersType = {
             question: question.text,
-            answer: selectedOption,
+            correctAnswer: question.answer,
+            userAnswer: selectedOption,
             status
         }
 
@@ -53,18 +50,25 @@ export default function QuestionScreen(){
 
         const nextQuestionNumber = questionNumber + 1;
 
-        if (nextQuestionNumber >= questions.length) {
-            router.push("/result");
+        if (nextQuestionNumber > questions.length) {
+            router.replace("/result");
             return;
         }
 
-        router.push({ pathname: "/question", params: { questionNumber: nextQuestionNumber }})
+        router.replace({ pathname: "/question", params: { questionNumber: nextQuestionNumber }})
+    }
+
+    const handleTimerStop = () => {
+        // Disable options and enable the next button
+        setDisableOptions(true);
+        setHasSelected(true)
     }
 
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 <Animated.View entering={FadeIn.duration(400).delay(400)}>
+                    <CountdownTimer initialSeconds={5} onTimerStop={handleTimerStop} />
                     <View style={styles.view}>
                         <Text style={styles.questionNumber}>
                             Question {questionNumber} of {questions.length}
@@ -75,11 +79,13 @@ export default function QuestionScreen(){
                     </View>
                     <View style={styles.options}>
                         {question.options.map((option, index) => (
-                            <Pressable 
-                                key={index} 
-                                style={({ pressed }) => [
+                            <Pressable
+                                key={index}
+                                disabled={disableOptions}
+                                style={[
                                     styles.pressable,
-                                    { borderColor: pressed ? "#0f0f0f" : "transparent" }
+                                    { borderColor: selectedOption === option ? "#0f0f0f" : "transparent" },
+                                    disableOptions && styles.buttonDisabled
                                 ]} 
                                 onPress={() => handlePressOption(option)}
                             >
@@ -92,7 +98,11 @@ export default function QuestionScreen(){
                         ))}
                     </View>
                     <View>
-                        <Pressable style={[styles.pressable, styles.next]} onPress={handlePressNext}>
+                        <Pressable 
+                            disabled={hasSelected === false && disableOptions === false} 
+                            style={[styles.pressable, styles.next, (hasSelected === false && disableOptions === false) && styles.buttonDisabled]} 
+                            onPress={handlePressNext}
+                        >
                             <View>
                                 <Text style={styles.nextText}>Next</Text>
                             </View>
@@ -111,8 +121,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#F0ECE7"
     },
     view: { 
-        marginVertical: 40,
-        height: "30%"
+        marginTop: 48,
+        marginBottom: 48,
+        height: "20%",
     },
     questionNumber: {
         color: "#777777",
@@ -128,7 +139,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "column",
         rowGap: 16,
-        marginBottom: 36
+        marginBottom: 40
     },
     optionText: {
         fontSize: 16
@@ -147,5 +158,9 @@ const styles = StyleSheet.create({
     nextText: {
         color: "#ffffff",
         fontSize: 16
-    }
+    },
+    buttonDisabled: {
+        backgroundColor: 'gray', // Style when disabled
+        opacity: 0.5, // Common way to indicate disabled
+    },
 });

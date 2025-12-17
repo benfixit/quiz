@@ -1,16 +1,36 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import Ionicons from '@react-native-vector-icons/ionicons';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import CategoryProvider from '@/store/CategoryProvider';
 import QuestionsProvider from '@/store/QuestionsProvider';
 import ResultProvider from '@/store/ResultProvider';
+import { HeaderBackButton } from '@react-navigation/elements';
+import { StyleSheet } from 'react-native';
 
-// const InitialLayout = () => {
 
-// }
+const ReviewModalLight = () => {
+  return (
+    <HeaderBackButton
+      backImage={() => <Ionicons name="close-outline" size={24} />} 
+      onPress={() => router.dismiss()}
+      style={{}}
+    />
+  );
+}
+
+const WelcomeScreenBackButton = () => {
+  return (
+    <HeaderBackButton
+      backImage={() => <Ionicons name="chevron-back-outline" size={24} />} 
+      onPress={() => router.back()}
+      style={{ paddingLeft: 8 }}
+    />
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -20,12 +40,27 @@ export default function RootLayout() {
       <CategoryProvider>
         <QuestionsProvider>
           <ResultProvider>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="welcome" />
-              <Stack.Screen name="question" options={{ headerTitle: "" }}/>
-              <Stack.Screen name="result" options={{ headerTitle: "" }}/>
-              {/* <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} /> */}
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen 
+                name="welcome" 
+                options={{ 
+                  headerShown: true, 
+                  headerTitle: "",
+                  headerLeft: () => <WelcomeScreenBackButton />
+                }} 
+              />
+              <Stack.Screen name="question" />
+              <Stack.Screen name="result" />
+              <Stack.Screen 
+                name="review" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: true,
+                  title: 'Review',
+                  headerLeft: () => <ReviewModalLight />
+                }} 
+              />
             </Stack>
             <StatusBar style="auto" />
           </ResultProvider>
@@ -34,3 +69,10 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+      color: "#000000",
+      padding: 12,
+  }
+});

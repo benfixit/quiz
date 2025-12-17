@@ -15,6 +15,7 @@ export type QuestionType = {
 
 export type AnswersType = {
     question: string,
-    answer: string,
+    correctAnswer: string,
+    userAnswer: string | null,
     status: boolean
 }

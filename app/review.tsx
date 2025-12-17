@@ -1,29 +1,46 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { useCategory } from "@/store/CategoryProvider";
-import { router } from "expo-router";
+import Ionicons from '@react-native-vector-icons/ionicons';
+import { useResult } from "@/store/ResultProvider";
+import { AnswersType } from "@/typings";
+import { useEffect } from "react";
 
 export default function ReviewScreen(){
-    const { category } = useCategory();
+    const { result } = useResult();
+
+    useEffect(() => {
+        
+    });
+
+    const renderItem = (item: AnswersType) => {
+        return (
+            <View style={styles.view}>
+                <View style={styles.textView}>
+                    <Ionicons name="help-circle" size={24} color={"aqua"} />
+                    <Text style={{ flex: 1 }}>{item.question}</Text>
+                </View>
+                {!item.status && <View style={styles.textView}>
+                    <Ionicons name="close-circle" size={24} color={"red"} />
+                    <Text style={styles.userAnswer}>{item.userAnswer}</Text>
+                </View>}
+                <View style={styles.textView}>
+                    <Ionicons name="checkmark-circle" size={24} color={"green"} />
+                    <Text style={{}}>{item.correctAnswer}</Text>
+                </View>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
-                <View style={styles.view}>
-                    <Text style={styles.categoryText}>
-                        {category.title}
-                    </Text>
-                    <Text style={styles.catIcon}>
-                        {category.icon}
-                    </Text>
-                </View>
-                <Pressable style={styles.pressable} onPress={() => router.push("/question")}>
-                    <View>
-                        <Text style={styles.pressableText}>
-                            Get Started
-                        </Text>
-                    </View>
-                </Pressable>
+                <FlatList 
+                    data={result} 
+                    showsVerticalScrollIndicator={false} 
+                    renderItem={({ item }) => renderItem(item)} 
+                    keyExtractor={item => item.question}
+                    contentContainerStyle={styles.list}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -35,30 +52,25 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: "#F0ECE7"
     },
+    list: {
+        gap: 8,
+        width: "100%"
+    },
     view: { 
-        marginVertical: 80,
+        backgroundColor: "#ffffff",
+        borderRadius: 8,
+        padding: 16,
+        display: "flex",
+        flexDirection: "column",
+        rowGap: 8
     },
-    categoryText: { 
-        fontWeight: "bold", 
-        fontSize: 36, 
-        marginBottom: 40,
-        textAlign: "center"
+    textView: { 
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        columnGap: 8
     },
-    catIcon: { 
-        marginBottom: 8,
-        fontSize: 200,
-        textAlign: "center"
-    },
-    pressable: { 
-        alignItems: "center", 
-        backgroundColor: "#0f0f0f", 
-        borderColor: "transparent", 
-        color: "#ffffff",
-        borderRadius: 8, 
-        borderWidth: 1,
-        padding: 16
-    },
-    pressableText: {
-        color: "#ffffff"
-    },
+    userAnswer: {
+        textDecorationLine: "line-through"
+    }
 });

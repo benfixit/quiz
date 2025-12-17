@@ -5,16 +5,17 @@ import { useResult } from "@/store/ResultProvider";
 import { questions } from "@/constants/questions";
 
 export default function ResultScreen(){
-    const { result } = useResult();
+    const { result, setResult } = useResult();
 
     const score = result.filter(item => item.status === true).length;
 
-    const handleShareResult = () => {
-        console.log("Share result ::: ", result);
+    const handlePlayAgain = () => {
+        setResult([]);
+        router.push("/");
     }
 
-    const handleReviewResult = () => {
-        console.log("Review result ::: ", result);
+    const handleShareResult = () => {
+        console.log("Share result ::: ", result);
     }
 
     return (
@@ -34,18 +35,18 @@ export default function ResultScreen(){
                         {score} / {questions.length}
                     </Text>
                 </View>
-                <View style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", rowGap: 16 }}>
-                    <Pressable style={styles.pressable} onPress={() => router.push("/")}>
+                <View style={styles.btns}>
+                    <Pressable style={styles.pressable} onPress={handlePlayAgain}>
                         <View>
                             <Text style={styles.pressableText}>Play Again</Text>
                         </View>
                     </Pressable>
                     <Pressable style={styles.pressable} onPress={handleShareResult}>
                         <View>
-                            <Text style={styles.pressableText}>Share result</Text>
+                            <Text style={styles.pressableText}>Share result (TBD)</Text>
                         </View>
                     </Pressable>
-                    <Pressable style={styles.pressable} onPress={handleReviewResult}>
+                    <Pressable style={styles.pressable} onPress={() => router.navigate("/review")}>
                         <View>
                             <Text style={styles.pressableText}>Review result</Text>
                         </View>
@@ -90,6 +91,13 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 48,
         fontWeight: "bold"
+    },
+    btns: { 
+        display: "flex", 
+        flexDirection: "column", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        rowGap: 16 
     },
     pressable: { 
         alignItems: "center", 
